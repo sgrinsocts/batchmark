@@ -16,6 +16,11 @@ async def noop_job(index: int) -> str:
     return f"ok-{index}"
 
 
+async def slow_job(index: int) -> str:
+    await asyncio.sleep(0.5)
+    return f"slow-{index}"
+
+
 def test_run_with_no_budget_succeeds():
     config = make_config(total_jobs=3)
     summary = asyncio.run(run_with_budget(noop_job, config, budget=None))
@@ -37,3 +42,12 @@ def test_run_with_expired_budget_raises():
     time.sleep(0.05)  # expire budget before run
     with pytest.raises(RuntimeError, match="Time budget exceeded"):
         asyncio.run(run_with_budget(noop_job, config, budget=budget))
+
+
+def test_run_results_contain_correct_indices():
+    """Ensure each result maps back to the expected job index."""
+    config = make_config(total_jobs=4)
+    summary = asyncio.run(run_with_budget(noop_job, config, budget=None))
+    returned_values = {r.value for r in summary.results}
+    expected = {f"ok-{i}" for i in range(4)}
+    assert returned_values == expected
