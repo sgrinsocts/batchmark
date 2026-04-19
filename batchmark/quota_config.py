@@ -13,8 +13,29 @@ class QuotaConfig:
     def to_quota(self) -> Optional[JobQuota]:
         return make_quota(self.max_jobs)
 
+    def is_limited(self) -> bool:
+        """Return True if a job limit is configured."""
+        return self.max_jobs is not None
+
 
 def load_quota_config(data: Dict[str, Any]) -> QuotaConfig:
+    """Parse a quota configuration from a config mapping.
+
+    Expects an optional ``quota`` key whose value is a mapping.  Supported
+    fields inside that mapping:
+
+    - ``max_jobs`` (int, optional): maximum number of jobs allowed per run.
+      Must be >= 1 if provided.
+
+    Args:
+        data: Top-level configuration dictionary.
+
+    Returns:
+        A :class:`QuotaConfig` instance.
+
+    Raises:
+        ValueError: If ``quota`` is not a mapping or ``max_jobs`` is invalid.
+    """
     raw = data.get("quota", {})
     if not isinstance(raw, dict):
         raise ValueError("'quota' section must be a mapping")
