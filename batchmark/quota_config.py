@@ -17,6 +17,21 @@ class QuotaConfig:
         """Return True if a job limit is configured."""
         return self.max_jobs is not None
 
+    def merge(self, other: "QuotaConfig") -> "QuotaConfig":
+        """Return a new QuotaConfig combining this config with *other*.
+
+        Values from *other* take precedence over this instance when set.
+
+        Args:
+            other: Another :class:`QuotaConfig` whose values override.
+
+        Returns:
+            A new :class:`QuotaConfig` with merged values.
+        """
+        return QuotaConfig(
+            max_jobs=other.max_jobs if other.max_jobs is not None else self.max_jobs,
+        )
+
 
 def load_quota_config(data: Dict[str, Any]) -> QuotaConfig:
     """Parse a quota configuration from a config mapping.
