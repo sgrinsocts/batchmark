@@ -35,6 +35,14 @@ def test_cache_hit_increments_counter():
     assert stats["total_hits"] == 2
 
 
+def test_cache_miss_does_not_increment_hit_counter():
+    c = ResultCache()
+    c.get("nonexistent")
+    c.get("also_missing")
+    stats = c.stats()
+    assert stats["total_hits"] == 0
+
+
 def test_cache_evicts_when_full():
     c = ResultCache(max_size=2)
     c.set("a", 1)
@@ -50,6 +58,14 @@ def test_cache_clear():
     c.set("x", 1)
     c.clear()
     assert c.stats()["size"] == 0
+
+
+def test_cache_clear_resets_hit_counter():
+    c = ResultCache()
+    c.set("x", 1)
+    c.get("x")
+    c.clear()
+    assert c.stats()["total_hits"] == 0
 
 
 def test_cache_invalid_max_size():
