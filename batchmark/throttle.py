@@ -41,6 +41,11 @@ class RateLimiter:
     def __call__(self) -> None:
         self.acquire()
 
+    @property
+    def interval(self) -> float:
+        """Minimum seconds between calls (0 if unlimited)."""
+        return 1.0 / self.rate if self.rate > 0 else 0.0
+
 
 def make_rate_limiter(rate: float) -> RateLimiter:
     """Factory that returns a RateLimiter for *rate* calls/sec."""
