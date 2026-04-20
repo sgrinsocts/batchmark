@@ -47,6 +47,10 @@ class PriorityQueue:
             result.append(heapq.heappop(self._heap))
         return result
 
+    def priorities(self) -> List[int]:
+        """Return a sorted list of all priorities currently in the queue."""
+        return sorted(job.priority for job in self._heap)
+
 
 def make_priority_queue(jobs: List[tuple]) -> PriorityQueue:
     """Build a PriorityQueue from a list of (priority, job) or (priority, job, label) tuples."""
@@ -55,7 +59,12 @@ def make_priority_queue(jobs: List[tuple]) -> PriorityQueue:
         if len(item) == 2:
             priority, job = item
             pq.push(job, priority)
-        else:
+        elif len(item) == 3:
             priority, job, label = item
             pq.push(job, priority, label)
+        else:
+            raise ValueError(
+                f"Each item must be a (priority, job) or (priority, job, label) tuple, "
+                f"got tuple of length {len(item)}"
+            )
     return pq
