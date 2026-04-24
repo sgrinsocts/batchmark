@@ -35,6 +35,15 @@ def test_matches_all_selector_keys():
     assert not job.matches({"env": "prod", "region": "eu"})
 
 
+def test_matches_empty_selector_always_true():
+    """An empty selector should match any job regardless of its labels."""
+    job = make_labeled_job(noop, "j", env="prod")
+    assert job.matches({})
+
+    unlabeled_job = make_labeled_job(noop, "k")
+    assert unlabeled_job.matches({})
+
+
 def test_filter_by_labels_returns_matching():
     jobs = [
         make_labeled_job(noop, "a", env="prod"),
@@ -48,6 +57,16 @@ def test_filter_by_labels_returns_matching():
 def test_filter_by_labels_empty_selector_returns_all():
     jobs = [make_labeled_job(noop, "a"), make_labeled_job(noop, "b")]
     assert filter_by_labels(jobs, {}) == jobs
+
+
+def test_filter_by_labels_no_matches_returns_empty():
+    """filter_by_labels should return an empty list when no jobs match."""
+    jobs = [
+        make_labeled_job(noop, "a", env="prod"),
+        make_labeled_job(noop, "b", env="staging"),
+    ]
+    result = filter_by_labels(jobs, {"env": "canary"})
+    assert result == []
 
 
 def test_group_by_label_groups_correctly():
