@@ -13,7 +13,19 @@ async def run_with_budget(
     config: BenchmarkConfig,
     budget: Optional[TimeBudget] = None,
 ) -> RunSummary:
-    """Run all jobs respecting concurrency and an optional time budget."""
+    """Run all jobs respecting concurrency and an optional time budget.
+
+    Args:
+        job: The callable to benchmark. It will be invoked once per job index.
+        config: Benchmark configuration controlling concurrency and total jobs.
+        budget: Optional time budget. If provided, each job checks the budget
+            before queuing and again after acquiring the semaphore. A
+            ``RuntimeError`` is raised (and all pending tasks cancelled) when
+            the budget is exhausted.
+
+    Returns:
+        A :class:`RunSummary` containing results for every completed job.
+    """
     semaphore = asyncio.Semaphore(config.concurrency)
     results: List[JobResult] = []
 
